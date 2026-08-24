@@ -1,0 +1,29 @@
+{
+  "name": "voc-board",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter @voc-board/app dev",
+    "build": "pnpm -r build",
+    "typecheck": "tsc --noEmit && pnpm --filter @voc-board/app typecheck",
+    "lint": "oxlint --deny-warnings --deny typescript/no-floating-promises .",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check .",
+    "test": "vitest run scripts && pnpm --filter @voc-board/app test",
+    "lesson:doctor": "tsx scripts/lesson-doctor.ts",
+    "lesson:verify": "tsx scripts/lesson-verify.ts",
+    "cf-typegen": "pnpm --filter @voc-board/app cf-typegen"
+  },
+  "devDependencies": {
+    "@types/node": "26.2.0",
+    "oxfmt": "0.64.0",
+    "oxlint": "1.79.0",
+    "tsx": "4.23.12",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+  },
+  "packageManager": "pnpm@10.11.1"
+}
