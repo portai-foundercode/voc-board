@@ -10,33 +10,89 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PProjectSlugRouteImport } from './routes/p/$projectSlug'
+import { Route as AppFeedbackIndexRouteImport } from './routes/app/feedback/index'
+import { Route as AppFeedbackFeedbackIdRouteImport } from './routes/app/feedback/$feedbackId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PProjectSlugRoute = PProjectSlugRouteImport.update({
+  id: '/p/$projectSlug',
+  path: '/p/$projectSlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppFeedbackIndexRoute = AppFeedbackIndexRouteImport.update({
+  id: '/app/feedback/',
+  path: '/app/feedback/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppFeedbackFeedbackIdRoute = AppFeedbackFeedbackIdRouteImport.update({
+  id: '/app/feedback/$feedbackId',
+  path: '/app/feedback/$feedbackId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/pricing': typeof PricingRoute
+  '/p/$projectSlug': typeof PProjectSlugRoute
+  '/app/feedback/$feedbackId': typeof AppFeedbackFeedbackIdRoute
+  '/app/feedback/': typeof AppFeedbackIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/pricing': typeof PricingRoute
+  '/p/$projectSlug': typeof PProjectSlugRoute
+  '/app/feedback/$feedbackId': typeof AppFeedbackFeedbackIdRoute
+  '/app/feedback': typeof AppFeedbackIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/pricing': typeof PricingRoute
+  '/p/$projectSlug': typeof PProjectSlugRoute
+  '/app/feedback/$feedbackId': typeof AppFeedbackFeedbackIdRoute
+  '/app/feedback/': typeof AppFeedbackIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/pricing'
+    | '/p/$projectSlug'
+    | '/app/feedback/$feedbackId'
+    | '/app/feedback/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/pricing'
+    | '/p/$projectSlug'
+    | '/app/feedback/$feedbackId'
+    | '/app/feedback'
+  id:
+    | '__root__'
+    | '/'
+    | '/pricing'
+    | '/p/$projectSlug'
+    | '/app/feedback/$feedbackId'
+    | '/app/feedback/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PricingRoute: typeof PricingRoute
+  PProjectSlugRoute: typeof PProjectSlugRoute
+  AppFeedbackFeedbackIdRoute: typeof AppFeedbackFeedbackIdRoute
+  AppFeedbackIndexRoute: typeof AppFeedbackIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +104,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/p/$projectSlug': {
+      id: '/p/$projectSlug'
+      path: '/p/$projectSlug'
+      fullPath: '/p/$projectSlug'
+      preLoaderRoute: typeof PProjectSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/feedback/': {
+      id: '/app/feedback/'
+      path: '/app/feedback'
+      fullPath: '/app/feedback/'
+      preLoaderRoute: typeof AppFeedbackIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/feedback/$feedbackId': {
+      id: '/app/feedback/$feedbackId'
+      path: '/app/feedback/$feedbackId'
+      fullPath: '/app/feedback/$feedbackId'
+      preLoaderRoute: typeof AppFeedbackFeedbackIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PricingRoute: PricingRoute,
+  PProjectSlugRoute: PProjectSlugRoute,
+  AppFeedbackFeedbackIdRoute: AppFeedbackFeedbackIdRoute,
+  AppFeedbackIndexRoute: AppFeedbackIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
