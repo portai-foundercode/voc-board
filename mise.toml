@@ -1,0 +1,10 @@
+[settings]
+experimental = true
+
+[tools]
+node = "24.15.0"
+pnpm = "10.11.1"
+
+[tasks.bootstrap]
+description = "Install the pinned toolchain and workspace dependencies"
+run = "pnpm install --frozen-lockfile"
