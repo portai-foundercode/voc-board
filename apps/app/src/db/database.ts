@@ -1,4 +1,9 @@
+import { mkdirSync } from "node:fs";
+import { dirname } from "node:path";
+
+import { LibsqlDialect } from "@libsql/kysely-libsql";
 import type { Kysely } from "kysely";
+import { Kysely as KyselyDatabase } from "kysely";
 
 import type { FeedbackStatus } from "../domain/feedback";
 
@@ -34,6 +39,13 @@ export type Database = {
   feedback: FeedbackTable;
 };
 
-export function createDatabase(_url: string): Kysely<Database> {
-  throw new Error("Lesson 3 implementation is incomplete");
+export function createDatabase(url = "file:data/voc-board.db"): Kysely<Database> {
+  if (url.startsWith("file:")) {
+    const filePath = url.slice("file:".length).split(/[?#]/, 1)[0];
+    if (filePath && filePath !== ":memory:") mkdirSync(dirname(filePath), { recursive: true });
+  }
+
+  return new KyselyDatabase<Database>({
+    dialect: new LibsqlDialect({ url }),
+  });
 }

@@ -14,6 +14,87 @@ export type FeedbackRepository = {
   ): Promise<Feedback | undefined>;
 };
 
-export function createFeedbackRepository(_db: Kysely<Database>): FeedbackRepository {
-  throw new Error("Lesson 3 implementation is incomplete");
+const feedbackSelection = [
+  "id",
+  "project_id as projectId",
+  "title",
+  "customer_name as name",
+  "customer_email as email",
+  "body",
+  "status",
+  "created_at as createdAt",
+  "updated_at as updatedAt",
+] as const;
+
+export function createFeedbackRepository(db: Kysely<Database>): FeedbackRepository {
+  async function findProjectId(projectSlug: string) {
+    const project = await db
+      .selectFrom("projects")
+      .select("id")
+      .where("workspace_id", "=", "ws-acme")
+      .where("slug", "=", projectSlug)
+      .executeTakeFirst();
+    return project?.id;
+  }
+
+  return {
+    async create(projectSlug, input) {
+      const projectId = await findProjectId(projectSlug);
+      if (!projectId) return undefined;
+
+      const timestamp = new Date().toISOString();
+      return await db
+        .insertInto("feedback")
+        .values({
+          id: crypto.randomUUID(),
+          project_id: projectId,
+          title: input.title,
+          customer_name: input.name,
+          customer_email: input.email,
+          body: input.body,
+          status: "new",
+          created_at: timestamp,
+          updated_at: timestamp,
+        })
+        .returning(feedbackSelection)
+        .executeTakeFirstOrThrow();
+    },
+
+    async listByProjectSlug(projectSlug) {
+      const projectId = await findProjectId(projectSlug);
+      if (!projectId) return undefined;
+
+      return await db
+        .selectFrom("feedback")
+        .select(feedbackSelection)
+        .where("project_id", "=", projectId)
+        .orderBy("created_at", "desc")
+        .execute();
+    },
+
+    async findByProjectSlugAndId(projectSlug, id) {
+      const projectId = await findProjectId(projectSlug);
+      if (!projectId) return undefined;
+
+      return await db
+        .selectFrom("feedback")
+        .select(feedbackSelection)
+        .where("project_id", "=", projectId)
+        .where("id", "=", id)
+        .executeTakeFirst();
+    },
+
+    async updateStatusByProjectSlugAndId(projectSlug, id, status) {
+      const projectId = await findProjectId(projectSlug);
+      if (!projectId) return undefined;
+
+      return await db
+        .updateTable("feedback")
+        .set({ status, updated_at: new Date().toISOString() })
+        .where("project_id", "=", projectId)
+        .where("id", "=", id)
+        .returning(feedbackSelection)
+        .executeTakeFirst();
+    },
+  };
 }

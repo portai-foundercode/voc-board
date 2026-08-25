@@ -16,10 +16,57 @@ type MigrationDatabase = {
   };
 };
 
-export async function up(_db: Kysely<MigrationDatabase>): Promise<void> {
-  throw new Error("Lesson 3 implementation is incomplete");
+export async function up(db: Kysely<MigrationDatabase>): Promise<void> {
+  await db.schema
+    .createTable("workspaces")
+    .addColumn("id", "text", (column) => column.primaryKey())
+    .addColumn("name", "text", (column) => column.notNull())
+    .addColumn("created_at", "text", (column) => column.notNull())
+    .execute();
+
+  await db.schema
+    .createTable("projects")
+    .addColumn("id", "text", (column) => column.primaryKey())
+    .addColumn("workspace_id", "text", (column) => column.notNull().references("workspaces.id"))
+    .addColumn("slug", "text", (column) => column.notNull())
+    .addColumn("name", "text", (column) => column.notNull())
+    .addColumn("created_at", "text", (column) => column.notNull())
+    .execute();
+
+  await db.schema
+    .createIndex("projects_workspace_id_slug_unique")
+    .unique()
+    .on("projects")
+    .columns(["workspace_id", "slug"])
+    .execute();
+
+  await db.schema
+    .createTable("feedback")
+    .addColumn("id", "text", (column) => column.primaryKey())
+    .addColumn("project_id", "text", (column) => column.notNull().references("projects.id"))
+    .addColumn("title", "text", (column) => column.notNull())
+    .addColumn("customer_name", "text", (column) => column.notNull())
+    .addColumn("customer_email", "text", (column) => column.notNull())
+    .addColumn("body", "text", (column) => column.notNull())
+    .addColumn("status", "text", (column) => column.notNull())
+    .addColumn("created_at", "text", (column) => column.notNull())
+    .addColumn("updated_at", "text", (column) => column.notNull())
+    .execute();
+
+  await db.schema
+    .createIndex("feedback_project_id_index")
+    .on("feedback")
+    .column("project_id")
+    .execute();
+  await db.schema
+    .createIndex("feedback_created_at_index")
+    .on("feedback")
+    .column("created_at")
+    .execute();
 }
 
-export async function down(_db: Kysely<MigrationDatabase>): Promise<void> {
-  throw new Error("Lesson 3 implementation is incomplete");
+export async function down(db: Kysely<MigrationDatabase>): Promise<void> {
+  await db.schema.dropTable("feedback").execute();
+  await db.schema.dropTable("projects").execute();
+  await db.schema.dropTable("workspaces").execute();
 }

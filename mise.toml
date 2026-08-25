@@ -7,4 +7,4 @@ pnpm = "10.11.1"
 
 [tasks.bootstrap]
 description = "Install the pinned toolchain and workspace dependencies"
-run = "pnpm install --frozen-lockfile"
+run = "pnpm install --frozen-lockfile && pnpm --filter @voc-board/app db:setup"
