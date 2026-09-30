@@ -1,5 +1,5 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": { "types": ["node", "vitest/globals"] },
-  "include": ["scripts/**/*.ts"]
+  "include": ["scripts/**/*.ts", "e2e/**/*.ts", "playwright.config.ts"]
 }
