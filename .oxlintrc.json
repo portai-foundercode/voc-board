@@ -1,0 +1,89 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "jsPlugins": ["./lint/voc-board-plugin.mjs"],
+  "overrides": [
+    {
+      "files": ["apps/app/src/**"],
+      "rules": {
+        "voc/no-external-url": "error",
+        "voc/no-hardcoded-secret": "error",
+        "voc/no-env-access": "error",
+        "voc/no-direct-communication": "error",
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "http",
+                "message": "直接通信するモジュールは使えません。通信はfetchで同一オリジンの /api/... へ送ってください。"
+              },
+              {
+                "name": "node:http",
+                "message": "直接通信するモジュールは使えません。通信はfetchで同一オリジンの /api/... へ送ってください。"
+              },
+              {
+                "name": "https",
+                "message": "直接通信するモジュールは使えません。通信はfetchで同一オリジンの /api/... へ送ってください。"
+              },
+              {
+                "name": "node:https",
+                "message": "直接通信するモジュールは使えません。通信はfetchで同一オリジンの /api/... へ送ってください。"
+              },
+              {
+                "name": "http2",
+                "message": "直接通信するモジュールは使えません。通信はfetchで同一オリジンの /api/... へ送ってください。"
+              },
+              {
+                "name": "node:http2",
+                "message": "直接通信するモジュールは使えません。通信はfetchで同一オリジンの /api/... へ送ってください。"
+              },
+              {
+                "name": "net",
+                "message": "直接通信するモジュールは使えません。通信はfetchで同一オリジンの /api/... へ送ってください。"
+              },
+              {
+                "name": "node:net",
+                "message": "直接通信するモジュールは使えません。通信はfetchで同一オリジンの /api/... へ送ってください。"
+              },
+              {
+                "name": "tls",
+                "message": "直接通信するモジュールは使えません。通信はfetchで同一オリジンの /api/... へ送ってください。"
+              },
+              {
+                "name": "node:tls",
+                "message": "直接通信するモジュールは使えません。通信はfetchで同一オリジンの /api/... へ送ってください。"
+              },
+              {
+                "name": "dgram",
+                "message": "直接通信するモジュールは使えません。通信はfetchで同一オリジンの /api/... へ送ってください。"
+              },
+              {
+                "name": "node:dgram",
+                "message": "直接通信するモジュールは使えません。通信はfetchで同一オリジンの /api/... へ送ってください。"
+              }
+            ]
+          }
+        ],
+        "no-restricted-globals": [
+          "error",
+          {
+            "name": "WebSocket",
+            "message": "WebSocketで直接通信できません。通信はfetchで同一オリジンの /api/... へ送ってください。"
+          },
+          {
+            "name": "XMLHttpRequest",
+            "message": "XMLHttpRequestで直接通信できません。通信はfetchで同一オリジンの /api/... へ送ってください。"
+          },
+          {
+            "name": "EventSource",
+            "message": "EventSourceで直接通信できません。通信はfetchで同一オリジンの /api/... へ送ってください。"
+          },
+          {
+            "name": "WebTransport",
+            "message": "WebTransportで直接通信できません。通信はfetchで同一オリジンの /api/... へ送ってください。"
+          }
+        ]
+      }
+    }
+  ]
+}
