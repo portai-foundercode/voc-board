@@ -11,7 +11,6 @@
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:lesson": "vitest run --config vitest.lesson.config.ts",
     "cf-typegen": "wrangler types"
   },
   "dependencies": {

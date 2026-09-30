@@ -56,28 +56,6 @@ describe("Node.js check", () => {
 });
 
 describe("doctor recovery", () => {
-  it("guides a missing start checkpoint to recreate the private repository from the template", async () => {
-    const report = vi.fn();
-    const runner = vi.fn<Runner>().mockReturnValue({ status: 0, stdout: "", stderr: "" });
-
-    const status = await runDoctor(["01"], {
-      existsSync: () => true,
-      readText: () => '{"name":"voc-board"}',
-      run: runner,
-      isPortAvailable: async () => true,
-      resolveStartRef: () => {
-        throw new Error("missing start ref");
-      },
-      nodeVersion: "24.16.0",
-      report,
-    });
-
-    expect(status).toBe(1);
-    expect(report).toHaveBeenCalledWith(
-      "NG: 開始checkpoint — private repoをtemplateから作り直してください（Include all branchesを有効にし、作業中の変更は別フォルダへ退避）",
-    );
-  });
-
   it("reports a malformed root manifest in Japanese with starter recovery", async () => {
     const report = vi.fn();
     const runner = vi.fn<Runner>().mockReturnValue({ status: 0, stdout: "", stderr: "" });
@@ -87,7 +65,6 @@ describe("doctor recovery", () => {
       readText: () => "{",
       run: runner,
       isPortAvailable: async () => true,
-      resolveStartRef: () => "checkpoint/01-start",
       nodeVersion: "24.16.0",
       report,
     });
@@ -107,7 +84,6 @@ describe("doctor recovery", () => {
       readText: () => '{"name":"voc-board"}',
       run: runner,
       isPortAvailable: async () => true,
-      resolveStartRef: () => "checkpoint/01-start",
       nodeVersion: "24.14.9",
       report,
     });

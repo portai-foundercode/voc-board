@@ -1,46 +1,23 @@
-import {
-  getLesson,
-  parseLessonId,
-  resolveStartRef,
-  run,
-  type Runner,
-  verifyLessonSafety,
-} from "./lib/lesson";
+import { getLesson, parseLessonId, run, type Runner } from "./lib/lesson";
 
 type Lesson = ReturnType<typeof getLesson>;
 
 export type VerifyDependencies = {
   run: Runner;
-  resolveStartRef: (lesson: Lesson) => string;
-  verifyLessonSafety: (startRef: string) => string[];
   report: (message: string) => void;
   announce: (message: string) => void;
 };
 
 const dependencies: VerifyDependencies = {
   run,
-  resolveStartRef,
-  verifyLessonSafety,
   report: console.error,
   announce: console.log,
 };
 
 export function runLessonVerification(
   lesson: Lesson,
-  {
-    run: runner,
-    resolveStartRef: resolve,
-    verifyLessonSafety: verify,
-    report,
-    announce,
-  }: VerifyDependencies,
+  { run: runner, report, announce }: VerifyDependencies,
 ) {
-  const issues = verify(resolve(lesson));
-  if (issues.length > 0) {
-    for (const issue of issues) report(`NG: ${issue}`);
-    return 1;
-  }
-
   for (const check of lesson.verifyCommands) {
     announce(`確認中: ${check.label}`);
     const result = runner(check.command, check.args);
@@ -50,7 +27,7 @@ export function runLessonVerification(
     }
     announce(`OK: ${check.label}`);
   }
-  announce("OK: 第1回の完了条件を満たしています");
+  announce(`OK: 第${Number(lesson.id)}回の完了条件を満たしています`);
   return 0;
 }
 

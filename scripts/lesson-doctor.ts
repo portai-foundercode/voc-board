@@ -1,9 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { createServer } from "node:net";
-import { getLesson, parseLessonId, resolveStartRef, run, type Runner } from "./lib/lesson";
+import { parseLessonId, run, type Runner } from "./lib/lesson";
 
 type Check = { label: string; ok: boolean; recovery: string };
-type Lesson = ReturnType<typeof getLesson>;
 
 export type PortServer = {
   once: (event: "error", listener: () => void) => PortServer;
@@ -38,7 +37,6 @@ export type DoctorDependencies = {
   readText: (path: string) => string;
   run: Runner;
   isPortAvailable: (port: number) => Promise<boolean>;
-  resolveStartRef: (lesson: Lesson) => string;
   nodeVersion: string;
   report: (message: string) => void;
 };
@@ -48,15 +46,13 @@ const dependencies: DoctorDependencies = {
   readText: (path) => readFileSync(path, "utf8"),
   run,
   isPortAvailable,
-  resolveStartRef,
   nodeVersion: process.versions.node,
   report: console.log,
 };
 
 export async function runDoctor(argv: readonly string[], deps: DoctorDependencies) {
-  let lesson;
   try {
-    lesson = getLesson(parseLessonId(argv));
+    parseLessonId(argv);
   } catch (error) {
     deps.report(`NG: ${error instanceof Error ? error.message : String(error)}`);
     return 1;
@@ -114,17 +110,6 @@ export async function runDoctor(argv: readonly string[], deps: DoctorDependencie
     ok: await deps.isPortAvailable(3000),
     recovery: "以前起動したdev serverを停止してください",
   });
-  try {
-    deps.resolveStartRef(lesson);
-    checks.push({ label: "開始checkpoint", ok: true, recovery: "" });
-  } catch {
-    checks.push({
-      label: "開始checkpoint",
-      ok: false,
-      recovery:
-        "private repoをtemplateから作り直してください（Include all branchesを有効にし、作業中の変更は別フォルダへ退避）",
-    });
-  }
 
   for (const check of checks) {
     deps.report(
