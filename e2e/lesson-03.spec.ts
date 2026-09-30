@@ -7,8 +7,14 @@ const restartOrigin = `http://localhost:${restartPort}`;
 const uniqueTitle = (prefix: string) =>
   `${prefix} ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
+// hydration前にフォームを送信するとブラウザ標準の送信になってしまうため、通信が落ち着くまで待つ
+async function gotoAndWaitForHydration(page: Page, url: string) {
+  await page.goto(url);
+  await page.waitForLoadState("networkidle");
+}
+
 async function submitFeedback(page: Page, origin: string, title: string) {
-  await page.goto(`${origin}/p/acme`);
+  await gotoAndWaitForHydration(page, `${origin}/p/acme`);
   await page.getByLabel("タイトル").fill(title);
   await page.getByLabel("名前").fill("山田 太郎");
   await page.getByLabel("メール").fill("taro@example.com");
@@ -18,7 +24,7 @@ async function submitFeedback(page: Page, origin: string, title: string) {
 }
 
 async function openDetail(page: Page, origin: string, title: string) {
-  await page.goto(`${origin}/app/feedback`);
+  await gotoAndWaitForHydration(page, `${origin}/app/feedback`);
   await page.getByRole("link", { name: title }).click();
   await expect(page).toHaveURL(/\/app\/feedback\/[^/]+$/);
   await expect(page.getByRole("heading", { name: title })).toBeVisible();
@@ -49,7 +55,7 @@ test("第3回: statusを変更でき、再読込後も残る", async ({ page }) 
 });
 
 test("第3回: 空欄で送信すると項目ごとにエラーが表示される", async ({ page }) => {
-  await page.goto("/p/acme");
+  await gotoAndWaitForHydration(page, "/p/acme");
   // ブラウザ標準のrequired検証を外して、サーバー側の検証結果を表示させる
   await page.locator("form").evaluate((form) => {
     (form as HTMLFormElement).noValidate = true;
