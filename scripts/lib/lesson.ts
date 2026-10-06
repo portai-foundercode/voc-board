@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
 
-export const lessonIds = ["01", "02", "03", "04", "05", "06", "07"] as const;
+export const lessonIds = ["01", "02", "03", "04", "05", "06", "07", "08"] as const;
 export type LessonId = (typeof lessonIds)[number];
 
 const qualityChecks = [
@@ -47,6 +47,10 @@ export const lessons = {
     id: "07",
     verifyCommands: [devVarsCheck, ...qualityChecks, ...databaseChecks, e2eCheck("07")],
   },
+  "08": {
+    id: "08",
+    verifyCommands: [devVarsCheck, ...qualityChecks, ...databaseChecks, e2eCheck("08")],
+  },
 } as const;
 
 export type RunResult = {
@@ -79,7 +83,7 @@ export function parseLessonId(argv: readonly string[]) {
   const id = lessonIds.find((lessonId) => lessonId === argv[0]);
   if (argv.length !== 1 || !id) {
     throw new Error(
-      "講義番号は 01、02、03、04、05、06、07 のいずれかを1つ指定してください（例: pnpm lesson:verify 01）",
+      "講義番号は 01、02、03、04、05、06、07、08 のいずれかを1つ指定してください（例: pnpm lesson:verify 01）",
     );
   }
   return id;

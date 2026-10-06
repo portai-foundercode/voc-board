@@ -76,11 +76,11 @@ describe("runDeploy", () => {
     expect(runner.mock.calls.at(-1)?.[1]).toContain("deploy");
   });
 
-  it("deploys lesson 07 with the same steps", () => {
+  it.each(["07", "08"])("deploys lesson %s with the same steps", (id) => {
     const runner = vi.fn<Runner>().mockReturnValue(ok);
     const d = deps({ VOC_WORKER_NAME: "w-taro" }, config("w-taro"), runner);
 
-    expect(runDeploy(["07"], d)).toBe(0);
+    expect(runDeploy([id], d)).toBe(0);
     expect(runner.mock.calls.map(([, args]) => args)).toEqual(deploySteps.map((s) => s.args));
   });
 

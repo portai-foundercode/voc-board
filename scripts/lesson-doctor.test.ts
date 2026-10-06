@@ -112,6 +112,7 @@ describe("doctor recovery", () => {
     await expect(doctor("05")).resolves.toBe(1);
     await expect(doctor("06")).resolves.toBe(1);
     await expect(doctor("07")).resolves.toBe(1);
+    await expect(doctor("08")).resolves.toBe(1);
     expect(report).toHaveBeenCalledWith(
       "NG: apps/app/.dev.vars — apps/app/.dev.vars がありません。cp apps/app/.dev.vars.example apps/app/.dev.vars で作成してください",
     );
