@@ -4,6 +4,14 @@
   "compatibility_date": "2026-08-20",
   "compatibility_flags": ["nodejs_compat"],
   "main": "src/server.ts",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "voc-board",
+      // ローカル用のダミー。第4回で配布された値に書き換える
+      "database_id": "00000000-0000-0000-0000-000000000000",
+    },
+  ],
   "observability": {
     "enabled": true,
     "logs": { "enabled": true, "head_sampling_rate": 1, "invocation_logs": true },

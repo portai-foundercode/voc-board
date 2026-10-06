@@ -1,0 +1,13 @@
+# このファイルを .dev.vars にコピーして使う（.dev.vars は commit しない）。値はローカル用のダミー。
+
+# 第4回: 限定公開のBasic認証
+BASIC_AUTH_USERNAME=voc
+BASIC_AUTH_PASSWORD=local-dev-password
+
+# 第5回: 認証
+BETTER_AUTH_SECRET=local-dev-better-auth-secret-0123456789
+
+# 第7回: 決済（Stripe Sandbox の値は運営から配布される）
+STRIPE_SECRET_KEY=sk_test_dummy
+STRIPE_WEBHOOK_SECRET=whsec_dummy
+STRIPE_PRO_PRICE_ID=price_dummy
