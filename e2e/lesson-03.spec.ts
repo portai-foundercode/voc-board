@@ -34,7 +34,13 @@ const statusSelect = (page: Page) => page.getByRole("combobox", { name: "ステ�
 
 async function changeStatus(page: Page, label: string, value: string) {
   await statusSelect(page).selectOption({ label });
+  // select の値は操作した時点で変わるため、更新APIの応答を待ってから確認する（直後にサーバーを止めても保存済みにするため）
+  const updated = page.waitForResponse(
+    (response) =>
+      response.request().method() !== "GET" && new URL(response.url()).pathname.startsWith("/api/"),
+  );
   await page.getByRole("button", { name: /ステータスを更新|更新/ }).click();
+  expect((await updated).ok()).toBe(true);
   await expect(statusSelect(page)).toHaveValue(value);
 }
 
