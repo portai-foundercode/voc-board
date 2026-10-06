@@ -82,4 +82,12 @@ describe("lesson verification", () => {
     expect(args("06").slice(0, -1)).toEqual(args("05").slice(0, -1));
     expect(args("06").at(-1)).toBe("exec playwright test e2e/lesson-06.spec.ts");
   });
+
+  it("runs the same checks as lesson 06 with the e2e for lesson 07", () => {
+    const args = (id: "06" | "07") =>
+      getLesson(id).verifyCommands.map((check) => check.args.join(" "));
+
+    expect(args("07").slice(0, -1)).toEqual(args("06").slice(0, -1));
+    expect(args("07").at(-1)).toBe("exec playwright test e2e/lesson-07.spec.ts");
+  });
 });

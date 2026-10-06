@@ -36,7 +36,7 @@ mise exec -- pnpm lesson:doctor 01
 mise exec -- pnpm dev
 ```
 
-演習を完了したら、その回の番号で `lesson:verify` を実行します（第1回は `01`、第2回は `02`、第3回は `03`、第4回は `04`、第5回は `05`、第6回は `06`）。
+演習を完了したら、その回の番号で `lesson:verify` を実行します（第1回は `01`、第2回は `02`、第3回は `03`、第4回は `04`、第5回は `05`、第6回は `06`、第7回は `07`）。
 
 ```bash
 mise exec -- pnpm lesson:verify 01
@@ -55,6 +55,10 @@ VOC_WORKER_NAME=<配布されたWorker名> mise exec -- pnpm lesson:deploy 04
 ```
 
 Worker名が `wrangler.jsonc` の `name` と一致しない場合は、他人のWorkerを上書きしないよう中止します。
+
+## 第7回: 決済
+
+第7回のE2EはStripeを呼びません（`.dev.vars.example` のダミー値のまま通ります）。実際のCheckoutを試すときだけ、運営から配布されたStripe Sandboxの値を `.dev.vars` とWorker secretへ入れ、`VOC_WORKER_NAME=<配布されたWorker名> mise exec -- pnpm lesson:deploy 07` でデプロイします。
 
 ## Quality
 

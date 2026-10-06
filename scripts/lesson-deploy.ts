@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import { run, type Runner } from "./lib/lesson";
 
-// 第7回・第8回も同じ手順でデプロイするため、対象になったらここへ追加する
-export const deployableLessonIds = ["04"] as const;
+// 第8回も同じ手順でデプロイするため、対象になったらここへ追加する
+export const deployableLessonIds = ["04", "07"] as const;
 
 const wranglerConfigPath = "apps/app/wrangler.jsonc";
 const dummyDatabaseId = "00000000-0000-0000-0000-000000000000";

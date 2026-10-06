@@ -76,6 +76,14 @@ describe("runDeploy", () => {
     expect(runner.mock.calls.at(-1)?.[1]).toContain("deploy");
   });
 
+  it("deploys lesson 07 with the same steps", () => {
+    const runner = vi.fn<Runner>().mockReturnValue(ok);
+    const d = deps({ VOC_WORKER_NAME: "w-taro" }, config("w-taro"), runner);
+
+    expect(runDeploy(["07"], d)).toBe(0);
+    expect(runner.mock.calls.map(([, args]) => args)).toEqual(deploySteps.map((s) => s.args));
+  });
+
   it("stops at the first failing step", () => {
     const runner = vi
       .fn<Runner>()
