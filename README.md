@@ -36,7 +36,7 @@ mise exec -- pnpm lesson:doctor 01
 mise exec -- pnpm dev
 ```
 
-演習を完了したら、その回の番号で `lesson:verify` を実行します（第1回は `01`、第2回は `02`、第3回は `03`、第4回は `04`、第5回は `05`）。
+演習を完了したら、その回の番号で `lesson:verify` を実行します（第1回は `01`、第2回は `02`、第3回は `03`、第4回は `04`、第5回は `05`、第6回は `06`）。
 
 ```bash
 mise exec -- pnpm lesson:verify 01
