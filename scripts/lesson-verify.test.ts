@@ -66,4 +66,12 @@ describe("lesson verification", () => {
       "exec playwright test e2e/lesson-04.spec.ts",
     ]);
   });
+
+  it("runs the same checks as lesson 04 with the e2e for lesson 05", () => {
+    const args = (id: "04" | "05") =>
+      getLesson(id).verifyCommands.map((check) => check.args.join(" "));
+
+    expect(args("05").slice(0, -1)).toEqual(args("04").slice(0, -1));
+    expect(args("05").at(-1)).toBe("exec playwright test e2e/lesson-05.spec.ts");
+  });
 });
