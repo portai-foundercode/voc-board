@@ -36,13 +36,25 @@ mise exec -- pnpm lesson:doctor 01
 mise exec -- pnpm dev
 ```
 
-演習を完了したら、その回の番号で `lesson:verify` を実行します（第1回は `01`、第2回は `02`、第3回は `03`）。
+演習を完了したら、その回の番号で `lesson:verify` を実行します（第1回は `01`、第2回は `02`、第3回は `03`、第4回は `04`）。
 
 ```bash
 mise exec -- pnpm lesson:verify 01
 ```
 
 型検査、lint、format検査、通常test、その回のE2Eを順に実行し、すべて通れば完了です。通ったらcommitして次の回へ進みます。前の回が終わっていない場合は、その回の演習契約をClaude Codeへ渡して実装し、`lesson:verify` が通ってから進んでください。
+
+## 第4回: 限定公開
+
+第4回からは `apps/app/.dev.vars` が必要です。`cp apps/app/.dev.vars.example apps/app/.dev.vars` で作成してください（commitされません）。`lesson:doctor 04` と `lesson:verify 04` が有無を確認します。
+
+運営から配布されたWorker名とD1の `database_id` を `apps/app/wrangler.jsonc` に設定し、Cloudflareのtokenを環境変数に入れて、デプロイします。
+
+```bash
+VOC_WORKER_NAME=<配布されたWorker名> mise exec -- pnpm lesson:deploy 04
+```
+
+Worker名が `wrangler.jsonc` の `name` と一致しない場合は、他人のWorkerを上書きしないよう中止します。
 
 ## Quality
 

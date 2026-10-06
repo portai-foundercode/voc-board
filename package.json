@@ -12,6 +12,7 @@
     "test": "vitest run scripts && pnpm --filter @voc-board/app test",
     "lesson:doctor": "tsx scripts/lesson-doctor.ts",
     "lesson:verify": "tsx scripts/lesson-verify.ts",
+    "lesson:deploy": "tsx scripts/lesson-deploy.ts",
     "cf-typegen": "pnpm --filter @voc-board/app cf-typegen"
   },
   "devDependencies": {

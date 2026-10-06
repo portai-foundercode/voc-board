@@ -51,4 +51,19 @@ describe("lesson verification", () => {
       expect.arrayContaining(["build", "--filter @voc-board/app db:reset"]),
     );
   });
+
+  it("checks .dev.vars first and then runs gate, build, db:reset and the e2e for lesson 04", () => {
+    const args = getLesson("04").verifyCommands.map((check) => check.args.join(" "));
+
+    expect(args[0]).toBe("exec tsx scripts/check-dev-vars.ts");
+    expect(args.slice(1)).toEqual([
+      "typecheck",
+      "lint",
+      "format:check",
+      "test",
+      "build",
+      "--filter @voc-board/app db:reset",
+      "exec playwright test e2e/lesson-04.spec.ts",
+    ]);
+  });
 });

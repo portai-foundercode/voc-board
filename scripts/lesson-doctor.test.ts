@@ -93,4 +93,24 @@ describe("doctor recovery", () => {
       "NG: Node.js version — Node.jsを ^22.22.2、^24.15.0、または26以上へ更新してください",
     );
   });
+
+  it("asks lesson 04 and later for apps/app/.dev.vars with the way to create it", async () => {
+    const report = vi.fn();
+    const runner = vi.fn<Runner>().mockReturnValue({ status: 0, stdout: "", stderr: "" });
+    const doctor = (id: string) =>
+      runDoctor([id], {
+        existsSync: (path) => path !== "apps/app/.dev.vars",
+        readText: () => '{"name":"voc-board"}',
+        run: runner,
+        isPortAvailable: async () => true,
+        nodeVersion: "24.16.0",
+        report,
+      });
+
+    await expect(doctor("03")).resolves.toBe(0);
+    await expect(doctor("04")).resolves.toBe(1);
+    expect(report).toHaveBeenCalledWith(
+      "NG: apps/app/.dev.vars — apps/app/.dev.vars がありません。cp apps/app/.dev.vars.example apps/app/.dev.vars で作成してください",
+    );
+  });
 });

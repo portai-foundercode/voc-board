@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { createServer } from "node:net";
+import { devVarsPath, missingDevVarsMessage } from "./lib/dev-vars";
 import { parseLessonId, run, type Runner } from "./lib/lesson";
 
 type Check = { label: string; ok: boolean; recovery: string };
@@ -51,8 +52,9 @@ const dependencies: DoctorDependencies = {
 };
 
 export async function runDoctor(argv: readonly string[], deps: DoctorDependencies) {
+  let lessonId: ReturnType<typeof parseLessonId>;
   try {
-    parseLessonId(argv);
+    lessonId = parseLessonId(argv);
   } catch (error) {
     deps.report(`NG: ${error instanceof Error ? error.message : String(error)}`);
     return 1;
@@ -103,6 +105,13 @@ export async function runDoctor(argv: readonly string[], deps: DoctorDependencie
         path === "node_modules"
           ? "pnpm install --frozen-lockfile を実行してください"
           : "講師へstarterの復元を依頼してください",
+    });
+  }
+  if (lessonId >= "04") {
+    checks.push({
+      label: devVarsPath,
+      ok: deps.existsSync(devVarsPath),
+      recovery: missingDevVarsMessage,
     });
   }
   checks.push({

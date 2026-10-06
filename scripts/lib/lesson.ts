@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
 
-export const lessonIds = ["01", "02", "03"] as const;
+export const lessonIds = ["01", "02", "03", "04"] as const;
 export type LessonId = (typeof lessonIds)[number];
 
 const qualityChecks = [
@@ -21,10 +21,20 @@ const databaseChecks = [
   { label: "DBリセット", command: "pnpm", args: ["--filter", "@voc-board/app", "db:reset"] },
 ] as const;
 
+const devVarsCheck = {
+  label: ".dev.vars",
+  command: "pnpm",
+  args: ["exec", "tsx", "scripts/check-dev-vars.ts"],
+} as const;
+
 export const lessons = {
   "01": { id: "01", verifyCommands: [...qualityChecks, e2eCheck("01")] },
   "02": { id: "02", verifyCommands: [...qualityChecks, e2eCheck("02")] },
   "03": { id: "03", verifyCommands: [...qualityChecks, ...databaseChecks, e2eCheck("03")] },
+  "04": {
+    id: "04",
+    verifyCommands: [devVarsCheck, ...qualityChecks, ...databaseChecks, e2eCheck("04")],
+  },
 } as const;
 
 export type RunResult = {
@@ -57,7 +67,7 @@ export function parseLessonId(argv: readonly string[]) {
   const id = lessonIds.find((lessonId) => lessonId === argv[0]);
   if (argv.length !== 1 || !id) {
     throw new Error(
-      "講義番号は 01、02、03 のいずれかを1つ指定してください（例: pnpm lesson:verify 01）",
+      "講義番号は 01、02、03、04 のいずれかを1つ指定してください（例: pnpm lesson:verify 01）",
     );
   }
   return id;
