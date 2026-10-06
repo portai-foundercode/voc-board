@@ -18,7 +18,7 @@ const e2eCheck = (id: LessonId) => ({
 
 const databaseChecks = [
   { label: "build", command: "pnpm", args: ["build"] },
-  { label: "DBセットアップ", command: "pnpm", args: ["--filter", "@voc-board/app", "db:setup"] },
+  { label: "DBリセット", command: "pnpm", args: ["--filter", "@voc-board/app", "db:reset"] },
 ] as const;
 
 export const lessons = {

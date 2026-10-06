@@ -42,13 +42,13 @@ describe("lesson verification", () => {
     expect(announce).toHaveBeenLastCalledWith("OK: 第2回の完了条件を満たしています");
   });
 
-  it("builds and sets up the database only for lesson 03", () => {
+  it("builds and resets the database only for lesson 03", () => {
     const args = (id: "01" | "03") =>
       getLesson(id).verifyCommands.map((check) => check.args.join(" "));
 
     expect(args("01")).not.toContain("build");
     expect(args("03")).toEqual(
-      expect.arrayContaining(["build", "--filter @voc-board/app db:setup"]),
+      expect.arrayContaining(["build", "--filter @voc-board/app db:reset"]),
     );
   });
 });
