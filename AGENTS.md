@@ -4,5 +4,5 @@
 - Before editing, state the target files, intended change, and verification in at most three items.
 - Do not add dependencies unless the request requires them.
 - Do not delete or disable tests, lint, format, or TypeScript settings to hide failures.
-- Do not modify `e2e/`, `lint/`, `playwright.config.ts`, or `.oxlintrc.json`. They define the lesson completion checks.
+- Do not modify `e2e/`, `lint/`, `scripts/`, `playwright.config.ts`, or `.oxlintrc.json`. They define the lesson completion checks.
 - Before commit, run `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, and `pnpm test`.
