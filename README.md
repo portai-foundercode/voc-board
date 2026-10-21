@@ -4,7 +4,7 @@ FOUNDER CODEで顧客フィードバック管理SaaSを段階的に作る演習�
 
 ## Prerequisites
 
-mise、Git、Claude Code CLIを用意してください。`mise bootstrap` がNode.js 24.15.0とpnpm 10.11.1、依存関係、E2E用のChromiumを導入します。API key、password、実顧客データをsource、prompt、log、commitへ含めないでください。
+mise、Git、Claude Code CLIを用意してください。`mise bootstrap` がNode.js 24.15.0とpnpm 12.14.0、依存関係、E2E用のChromiumを導入します。API key、password、実顧客データをsource、prompt、log、commitへ含めないでください。
 
 ## Setup and run
 

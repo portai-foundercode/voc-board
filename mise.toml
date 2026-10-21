@@ -3,7 +3,7 @@ experimental = true
 
 [tools]
 node = "24.15.0"
-pnpm = "10.11.1"
+pnpm = "12.14.0"
 
 [tasks.bootstrap]
 description = "Install the pinned toolchain and workspace dependencies"
