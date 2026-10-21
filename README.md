@@ -11,12 +11,15 @@ mise、Git、Claude Code CLIを用意してください。`mise bootstrap` がNo
 ```bash
 mise trust mise.toml
 mise bootstrap
+cp apps/app/.dev.vars.example apps/app/.dev.vars
 mise exec -- pnpm dev
 ```
 
 Open http://localhost:3000.
 
 初回だけmiseがリポジトリ設定の信頼を確認します。2回目以降は `mise bootstrap` を実行してください。
+
+`apps/app/.dev.vars` はローカル用の環境変数ファイルです（commitされません）。第4回以降で使い、`lesson:doctor 04` と `lesson:verify 04` 以降が有無を確認します。中身はダミー値なので、第7回で実際のCheckoutを試すとき以外は書き換え不要です。
 
 ## 受講用リポジトリを作る
 
@@ -46,7 +49,7 @@ mise exec -- pnpm lesson:verify 01
 
 ## 第4回: 限定公開
 
-第4回からは `apps/app/.dev.vars` が必要です。`cp apps/app/.dev.vars.example apps/app/.dev.vars` で作成してください（commitされません）。`lesson:doctor 04` と `lesson:verify 04` が有無を確認します。
+第4回からは `apps/app/.dev.vars` が必要です。まだ作っていなければ [Setup and run](#setup-and-run) の `cp` で作成してください。
 
 運営から配布されたWorker名とD1の `database_id` を `apps/app/wrangler.jsonc` に設定し、Cloudflareのtokenを環境変数に入れて、デプロイします。
 
