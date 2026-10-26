@@ -5,4 +5,5 @@
 - Do not add dependencies unless the request requires them.
 - Do not delete or disable tests, lint, format, or TypeScript settings to hide failures.
 - Do not modify `e2e/`, `lint/`, `scripts/`, `playwright.config.ts`, or `.oxlintrc.json`. They define the lesson completion checks.
+- This repository is a step-by-step exercise. Do not read ahead in `e2e/` or other check files to propose implementations that have not been requested yet.
 - Before commit, run `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, and `pnpm test`.
