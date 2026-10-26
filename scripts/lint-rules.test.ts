@@ -27,9 +27,17 @@ function findings(source: string) {
   writeFileSync(file, source);
   let output: string;
   try {
+    // node_modules/.bin/oxlint はシェルスクリプトで Windows から起動できないため、Node で直接実行する
     output = execFileSync(
-      join(root, "node_modules/.bin/oxlint"),
-      ["-c", join(directory, "oxlintrc.json"), "--format", "json", file],
+      process.execPath,
+      [
+        join(root, "node_modules/oxlint/bin/oxlint"),
+        "-c",
+        join(directory, "oxlintrc.json"),
+        "--format",
+        "json",
+        file,
+      ],
       { encoding: "utf8" },
     );
   } catch (error) {

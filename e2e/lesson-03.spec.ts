@@ -1,6 +1,7 @@
-import { spawn, type ChildProcess } from "node:child_process";
+import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { expect, test, type Page } from "@playwright/test";
 
+const isWindows = process.platform === "win32";
 const restartPort = 3100;
 const restartOrigin = `http://localhost:${restartPort}`;
 
@@ -86,30 +87,26 @@ test("第3回: API は不正入力で400、存在しないものは404を返す"
 });
 
 // 永続化の確認にはサーバーの再起動が必要なので、専用portでdev serverを自前で起動・停止する
+// Windows でも pnpm の .cmd を経由せずに起動できるよう、vite の JS を Node で直接実行する
 function startDevServer() {
   return spawn(
-    "pnpm",
-    [
-      "--filter",
-      "@voc-board/app",
-      "exec",
-      "vite",
-      "dev",
-      "--port",
-      String(restartPort),
-      "--strictPort",
-    ],
+    process.execPath,
+    ["node_modules/vite/bin/vite.js", "dev", "--port", String(restartPort), "--strictPort"],
     {
-      detached: true,
+      cwd: "apps/app",
+      // POSIX ではプロセスグループごと止めるため、別グループで起動する
+      detached: !isWindows,
       stdio: "ignore",
     },
   );
 }
 
+// vite が起動した workerd などの子プロセスもまとめて止める
 async function stopDevServer(server: ChildProcess) {
   if (server.pid === undefined || server.exitCode !== null) return;
   const exited = new Promise((resolve) => server.once("exit", resolve));
-  process.kill(-server.pid, "SIGTERM");
+  if (isWindows) spawnSync("taskkill", ["/pid", String(server.pid), "/T", "/F"]);
+  else process.kill(-server.pid, "SIGTERM");
   await exited;
 }
 

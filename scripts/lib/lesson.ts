@@ -66,10 +66,15 @@ export type Runner = (
 ) => RunResult;
 
 export const run: Runner = (command, args, options = {}) => {
-  const result = spawnSync(command, [...args], {
+  const spawnOptions = {
     encoding: "utf8",
     stdio: options.capture ? "pipe" : "inherit",
-  });
+  } as const;
+  // Windows では pnpm などが .cmd として入っていることがあり、シェル経由でないと起動できない
+  const result =
+    process.platform === "win32"
+      ? spawnSync([command, ...args].join(" "), { ...spawnOptions, shell: true })
+      : spawnSync(command, [...args], spawnOptions);
 
   return {
     status: result.status ?? 1,
