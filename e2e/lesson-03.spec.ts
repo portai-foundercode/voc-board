@@ -1,89 +1,86 @@
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
-import { expect, test, type Page } from "@playwright/test";
+
+import { expect, test } from "@playwright/test";
+
+import {
+  changeStatus,
+  detailId,
+  expectStatus,
+  feedbackForm,
+  openDetail,
+  recordApiGets,
+  submitButton,
+  submitFeedback,
+  uniqueToken,
+} from "./support/feedback";
+import { findForm, missingDetailPath, open } from "./support/screens";
 
 const isWindows = process.platform === "win32";
 const restartPort = 3100;
 const restartOrigin = `http://localhost:${restartPort}`;
 
-const uniqueTitle = (prefix: string) =>
-  `${prefix} ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+test("第3回: 投稿が一覧に出て詳細を開け、ステータスの変更が再読込後も残る", async ({ page }) => {
+  const token = uniqueToken();
+  await submitFeedback(page, token);
+  await openDetail(page, token);
 
-// hydration前にフォームを送信するとブラウザ標準の送信になってしまうため、通信が落ち着くまで待つ
-async function gotoAndWaitForHydration(page: Page, url: string) {
-  await page.goto(url);
-  await page.waitForLoadState("networkidle");
-}
-
-async function submitFeedback(page: Page, origin: string, title: string) {
-  await gotoAndWaitForHydration(page, `${origin}/p/acme`);
-  await page.getByLabel("タイトル").fill(title);
-  await page.getByLabel("名前").fill("山田 太郎");
-  await page.getByLabel("メール").fill("taro@example.com");
-  await page.getByLabel("フィードバック").fill("E2Eから投稿したフィードバックです");
-  await page.getByRole("button", { name: "送信する" }).click();
-  await expect(page.getByText("フィードバックを受け付けました")).toBeVisible();
-}
-
-async function openDetail(page: Page, origin: string, title: string) {
-  await gotoAndWaitForHydration(page, `${origin}/app/feedback`);
-  await page.getByRole("link", { name: title }).click();
-  await expect(page).toHaveURL(/\/app\/feedback\/[^/]+$/);
-  await expect(page.getByRole("heading", { name: title })).toBeVisible();
-}
-
-const statusSelect = (page: Page) => page.getByRole("combobox", { name: "ステータス" });
-
-async function changeStatus(page: Page, label: string, value: string) {
-  await statusSelect(page).selectOption({ label });
-  // select の値は操作した時点で変わるため、更新APIの応答を待ってから確認する（直後にサーバーを止めても保存済みにするため）
-  const updated = page.waitForResponse(
-    (response) =>
-      response.request().method() !== "GET" && new URL(response.url()).pathname.startsWith("/api/"),
-  );
-  await page.getByRole("button", { name: /ステータスを更新|更新/ }).click();
-  expect((await updated).ok()).toBe(true);
-  await expect(statusSelect(page)).toHaveValue(value);
-}
-
-test("第3回: 投稿が一覧に出て、詳細に遷移できる", async ({ page }) => {
-  const title = uniqueTitle("一覧確認");
-  await submitFeedback(page, "", title);
-  await openDetail(page, "", title);
-});
-
-test("第3回: statusを変更でき、再読込後も残る", async ({ page }) => {
-  const title = uniqueTitle("status確認");
-  await submitFeedback(page, "", title);
-  await openDetail(page, "", title);
-
-  await changeStatus(page, "確認中", "reviewing");
+  await changeStatus(page, "確認中");
   await page.reload();
-  await expect(statusSelect(page)).toHaveValue("reviewing");
+  await page.waitForLoadState("networkidle");
+  await expectStatus(page, "確認中");
 });
 
 test("第3回: 空欄で送信すると項目ごとにエラーが表示される", async ({ page }) => {
-  await gotoAndWaitForHydration(page, "/p/acme");
-  // ブラウザ標準のrequired検証を外して、サーバー側の検証結果を表示させる
-  await page.locator("form").evaluate((form) => {
-    (form as HTMLFormElement).noValidate = true;
+  await findForm(page);
+  const form = feedbackForm(page);
+  // ブラウザ標準のrequired検証を外して、アプリ側の検証結果を表示させる
+  await form.evaluate((element) => {
+    (element as HTMLFormElement).noValidate = true;
   });
-  await page.getByRole("button", { name: "送信する" }).click();
+  const before = new Set((await page.locator("body").innerText()).split("\n"));
+  await submitButton(form).click();
 
   await expect(page.getByText("フィードバックを受け付けました")).toHaveCount(0);
-  // 各入力欄のlabel内に、項目名以外のエラー文が表示される
-  for (const name of ["タイトル", "名前", "メール", "フィードバック"]) {
-    const label = page.locator("label").filter({ has: page.getByLabel(name) });
-    await expect(label).not.toHaveText(name, { timeout: 10_000 });
-    await expect(label.locator("input, textarea")).toBeVisible();
-  }
+  // エラー文の書き方は問わず、名前・メール・本文の3項目ぶん新しい行が増えたことを確かめる
+  await expect
+    .poll(
+      async () =>
+        (await page.locator("body").innerText())
+          .split("\n")
+          .filter((line) => line.trim() && !before.has(line)).length,
+      { timeout: 10_000 },
+    )
+    .toBeGreaterThanOrEqual(3);
 });
 
-test("第3回: API は不正入力で400、存在しないものは404を返す", async ({ request }) => {
-  const invalid = await request.post("/api/projects/acme/feedback", { data: {} });
+test("第3回: 存在しないフィードバックを開くと見つからない旨が表示される", async ({ page }) => {
+  const token = uniqueToken();
+  await submitFeedback(page, token);
+  await openDetail(page, token);
+
+  await open(page, missingDetailPath(page.url()));
+  await expect(page.getByText("フィードバックが見つかりません")).toBeVisible();
+});
+
+test("第3回: APIは入力の誤りに400、存在しないフィードバックに404を返す", async ({
+  page,
+  request,
+}) => {
+  const token = uniqueToken();
+  const posted = await submitFeedback(page, token);
+  const isJson = ((await posted.allHeaders())["content-type"] ?? "").includes("json");
+  const invalid = isJson
+    ? await request.post(posted.url(), { data: {} })
+    : await request.post(posted.url(), { form: {} });
   expect(invalid.status()).toBe(400);
 
-  expect((await request.get("/api/projects/missing/feedback")).status()).toBe(404);
-  expect((await request.get("/api/projects/acme/feedback/missing")).status()).toBe(404);
+  // 詳細を開いたときにブラウザが呼んだAPIがあればそれを、なければ投稿APIの下を詳細APIとみなす
+  const apiGets = recordApiGets(page);
+  await openDetail(page, token);
+  const id = detailId(page.url());
+  const detailApi = apiGets.find((url) => url.includes(id));
+  const missingApi = detailApi ? detailApi.replace(id, "missing") : `${posted.url()}/missing`;
+  expect((await request.get(missingApi)).status()).toBe(404);
 });
 
 // 永続化の確認にはサーバーの再起動が必要なので、専用portでdev serverを自前で起動・停止する
@@ -125,24 +122,27 @@ async function waitForServer() {
     .toBe(200);
 }
 
-test("第3回: dev server を再起動しても投稿とstatus変更が残る", async ({ page }) => {
+test("第3回: 開発サーバーを再起動しても投稿とステータスの変更が残る", async ({ browser }) => {
   test.setTimeout(240_000);
-  const title = uniqueTitle("永続化確認");
+  const token = uniqueToken();
+  const context = await browser.newContext({ baseURL: restartOrigin });
+  const page = await context.newPage();
 
   let server = startDevServer();
   try {
     await waitForServer();
-    await submitFeedback(page, restartOrigin, title);
-    await openDetail(page, restartOrigin, title);
-    await changeStatus(page, "計画済み", "planned");
+    await submitFeedback(page, token);
+    await openDetail(page, token);
+    await changeStatus(page, "計画済み");
 
     await stopDevServer(server);
     server = startDevServer();
     await waitForServer();
 
-    await openDetail(page, restartOrigin, title);
-    await expect(statusSelect(page)).toHaveValue("planned");
+    await openDetail(page, token);
+    await expectStatus(page, "計画済み");
   } finally {
     await stopDevServer(server);
+    await context.close();
   }
 });

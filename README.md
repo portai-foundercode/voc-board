@@ -51,21 +51,15 @@ mise exec -- pnpm lesson:verify 01
 
 第4回からは `apps/app/.dev.vars` が必要です。まだ作っていなければ [Setup and run](#setup-and-run) の `cp` で作成してください。
 
-運営から配布されたWorker名とD1の `database_id` を `apps/app/wrangler.jsonc` に設定し、Cloudflareのtokenを環境変数に入れて、デプロイします。
-
-```bash
-VOC_WORKER_NAME=<配布されたWorker名> mise exec -- pnpm lesson:deploy 04
-```
-
-Worker名が `wrangler.jsonc` の `name` と一致しない場合は、他人のWorkerを上書きしないよう中止します。
+公開先は自分のCloudflareアカウント（無料プランで足ります）です。Claude Codeに公開を頼むと、ブラウザでのログイン、D1の作成と `apps/app/wrangler.jsonc` の `database_id` の書き換え、remote D1への表の準備と初期データの投入、デプロイまでを進めます。Cloudflareのパスワードやtokenは、Claude Codeやpromptに渡さないでください。
 
 ## 第7回: 決済
 
-第7回のE2EはStripeを呼びません（`.dev.vars.example` のダミー値のまま通ります）。実際のCheckoutを試すときだけ、運営から配布されたStripe Sandboxの値を `.dev.vars` とWorker secretへ入れ、`VOC_WORKER_NAME=<配布されたWorker名> mise exec -- pnpm lesson:deploy 07` でデプロイします。
+第7回のE2EはStripeを呼びません（`.dev.vars.example` のダミー値のまま通ります）。実際のCheckoutを試すときだけ、運営から配布されたStripe Sandboxの値を `.dev.vars` とWorker secretへ入れ、第4回と同じようにClaude Codeに公開を頼みます。
 
 ## 第8回: セキュリティと本番公開準備
 
-第8回のE2Eはローカルのdevサーバーだけにつなぎます。`pnpm audit`、公開URLの確認、Workers Logs / Tracesの確認、remote D1のテストユーザーのパスワード変更は自動検証に含まれません。スライドのリリースチェックで確認してから、`VOC_WORKER_NAME=<配布されたWorker名> mise exec -- pnpm lesson:deploy 08` でデプロイします。
+第8回のE2Eはローカルのdevサーバーだけにつなぎます。`pnpm audit`、公開URLの確認、Workers Logs / Tracesの確認、remote D1のテストユーザーのパスワード変更は自動検証に含まれません。スライドのリリースチェックで確認してから、第4回と同じようにClaude Codeに公開を頼みます。
 
 ## Quality
 

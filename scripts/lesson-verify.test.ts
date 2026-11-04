@@ -42,17 +42,16 @@ describe("lesson verification", () => {
     expect(announce).toHaveBeenLastCalledWith("OK: 第2回の完了条件を満たしています");
   });
 
-  it("builds and resets the database only for lesson 03", () => {
+  it("builds without resetting the database for lesson 03", () => {
     const args = (id: "01" | "03") =>
       getLesson(id).verifyCommands.map((check) => check.args.join(" "));
 
     expect(args("01")).not.toContain("build");
-    expect(args("03")).toEqual(
-      expect.arrayContaining(["build", "--filter @voc-board/app db:reset"]),
-    );
+    expect(args("03")).toContain("build");
+    expect(args("03")).not.toContain("--filter @voc-board/app db:reset");
   });
 
-  it("checks .dev.vars first and then runs gate, build, db:reset and the e2e for lesson 04", () => {
+  it("checks .dev.vars first and then runs gate, build and the e2e for lesson 04", () => {
     const args = getLesson("04").verifyCommands.map((check) => check.args.join(" "));
 
     expect(args[0]).toBe("exec tsx scripts/check-dev-vars.ts");
@@ -62,17 +61,23 @@ describe("lesson verification", () => {
       "format:check",
       "test",
       "build",
-      "--filter @voc-board/app db:reset",
       "exec playwright test e2e/lesson-04.spec.ts",
     ]);
   });
 
-  it("runs the same checks as lesson 04 with the e2e for lesson 05", () => {
-    const args = (id: "04" | "05") =>
-      getLesson(id).verifyCommands.map((check) => check.args.join(" "));
+  it("resets the database after build from lesson 05", () => {
+    const args = getLesson("05").verifyCommands.map((check) => check.args.join(" "));
 
-    expect(args("05").slice(0, -1)).toEqual(args("04").slice(0, -1));
-    expect(args("05").at(-1)).toBe("exec playwright test e2e/lesson-05.spec.ts");
+    expect(args).toEqual([
+      "exec tsx scripts/check-dev-vars.ts",
+      "typecheck",
+      "lint",
+      "format:check",
+      "test",
+      "build",
+      "--filter @voc-board/app db:reset",
+      "exec playwright test e2e/lesson-05.spec.ts",
+    ]);
   });
 
   it("runs the same checks as lesson 05 with the e2e for lesson 06", () => {

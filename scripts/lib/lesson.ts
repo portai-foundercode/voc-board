@@ -16,8 +16,10 @@ const e2eCheck = (id: LessonId) => ({
   args: ["exec", "playwright", "test", `e2e/lesson-${id}.spec.ts`],
 });
 
+const buildCheck = { label: "build", command: "pnpm", args: ["build"] } as const;
+
 const databaseChecks = [
-  { label: "build", command: "pnpm", args: ["build"] },
+  buildCheck,
   { label: "DBリセット", command: "pnpm", args: ["--filter", "@voc-board/app", "db:reset"] },
 ] as const;
 
@@ -30,10 +32,11 @@ const devVarsCheck = {
 export const lessons = {
   "01": { id: "01", verifyCommands: [...qualityChecks, e2eCheck("01")] },
   "02": { id: "02", verifyCommands: [...qualityChecks, e2eCheck("02")] },
-  "03": { id: "03", verifyCommands: [...qualityChecks, ...databaseChecks, e2eCheck("03")] },
+  // 第3・4回のE2Eは毎回別の投稿を作るので、DBを空に戻さずに判定する（DBの作り方を受講者に指定しないため）
+  "03": { id: "03", verifyCommands: [...qualityChecks, buildCheck, e2eCheck("03")] },
   "04": {
     id: "04",
-    verifyCommands: [devVarsCheck, ...qualityChecks, ...databaseChecks, e2eCheck("04")],
+    verifyCommands: [devVarsCheck, ...qualityChecks, buildCheck, e2eCheck("04")],
   },
   "05": {
     id: "05",
