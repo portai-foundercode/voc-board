@@ -9,9 +9,10 @@ const routeTree = readFileSync(
 );
 const fullPaths = routeTree.match(/interface FileRoutesByFullPath \{([^}]*)\}/)?.[1] ?? "";
 export const normalize = (path: string) => (path.length > 1 ? path.replace(/\/$/, "") : path);
-export const staticPaths = [...fullPaths.matchAll(/'([^']+)':/g)]
-  .map((match) => normalize(match[1]))
-  .filter((path) => !path.includes("$"));
+const allPaths = [...fullPaths.matchAll(/'([^']+)':/g)].map((match) => normalize(match[1]));
+export const staticPaths = allPaths.filter((path) => !path.includes("$"));
+// /p/$slug のように、URLの一部にIDなどが入る画面
+export const dynamicPaths = allPaths.filter((path) => path.includes("$"));
 
 export const statuses = ["新着", "確認中", "計画済み"];
 
@@ -21,7 +22,13 @@ export async function open(page: Page, path: string) {
   await page.waitForLoadState("networkidle");
 }
 
+const currentPath = (page: Page) => {
+  const url = new URL(page.url());
+  return normalize(url.pathname) + url.search;
+};
+
 // ルート一覧の画面と、そこからリンクで1回たどれる画面（/p/$slug のようなURL）を順に開いて探す
+// ログイン画面などへ転送されることもあるので、見つかった画面の実際のURLを返す
 export async function findScreen(
   page: Page,
   name: string,
@@ -33,7 +40,7 @@ export async function findScreen(
     if (visited.has(path)) continue;
     visited.add(path);
     await open(page, path);
-    if (await matches(page)) return path;
+    if (await matches(page)) return currentPath(page);
     if (!linked) {
       for (const target of (await linksByTarget(page)).keys())
         queue.push({ path: target, linked: true });
@@ -44,15 +51,22 @@ export async function findScreen(
 
 export const findForm = (page: Page) =>
   findScreen(page, "投稿フォーム", async (current) => {
-    return (await current.locator('form input[type="email"]').count()) > 0;
+    const form = current
+      .locator("form")
+      .filter({ has: current.locator('input[type="email"]') })
+      .filter({ has: current.locator("textarea") })
+      .filter({ hasNot: current.locator('input[type="password"]') });
+    return (await form.count()) > 0;
   });
 
+// 状態が表示され、各フィードバックの詳細へのリンクがある画面を一覧とみなす（状態別の件数を出すダッシュボードと区別する）
 export const findList = (page: Page) =>
   findScreen(page, "フィードバック一覧", async (current) => {
+    let shown = false;
     for (const status of statuses) {
-      if ((await current.getByText(status).count()) === 0) return false;
+      if ((await current.getByText(status).count()) > 0) shown = true;
     }
-    return true;
+    return shown && (await feedbackLinks(current)).length > 0;
   });
 
 // 画面内のリンクを、遷移先（同一オリジンのパス + クエリ）ごとに1つずつ返す

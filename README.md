@@ -55,7 +55,7 @@ mise exec -- pnpm lesson:verify 01
 
 ## 第7回: 決済
 
-第7回のE2EはStripeを呼びません（`.dev.vars.example` のダミー値のまま通ります）。実際のCheckoutを試すときだけ、運営から配布されたStripe Sandboxの値を `.dev.vars` とWorker secretへ入れ、第4回と同じようにClaude Codeに公開を頼みます。
+第7回のE2EはStripeを呼びません（`.dev.vars.example` のダミー値のまま通ります）。実際のCheckoutを試すときは、自分のStripeのテスト環境で取得したシークレットキーと価格のIDを自分の手で `.dev.vars` に貼り、第4回と同じようにClaude Codeに公開を頼みます。公開後はStripeのダッシュボードで通知先を登録し、鍵・価格のID・署名secretをCloudflareのダッシュボードでWorkerのsecretに登録します。鍵はClaude Codeやpromptに渡さないでください。
 
 ## 第8回: セキュリティと本番公開準備
 

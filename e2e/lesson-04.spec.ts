@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { readDevVars } from "../scripts/lib/dev-vars";
+import { credentials } from "./support/auth";
 import {
   changeStatus,
   expectStatus,
@@ -19,13 +19,7 @@ import {
   staticPaths,
 } from "./support/screens";
 
-// 資格情報は apps/app/.dev.vars から読む。変数名は受講者に指定していないので、BASIC と USER / PASS を含む名前を探す
-const vars = readDevVars();
-const findVar = (pattern: RegExp) =>
-  Object.entries(vars).find(([key]) => pattern.test(key))?.[1] ?? "";
-const credentials = { username: findVar(/BASIC.*USER/i), password: findVar(/BASIC.*PASS/i) };
-
-// 問い合わせIDのヘッダー名も指定していないので、x-request-id のような名前を探す
+// 問い合わせIDのヘッダー名は受講者に指定していないので、x-request-id のような名前を探す
 const requestIdOf = (headers: Record<string, string>) =>
   Object.entries(headers).find(([name]) => /request.?id/i.test(name))?.[1];
 
@@ -48,9 +42,9 @@ test.describe("資格情報なし", () => {
     const posted = await submitFeedback(await context.newPage(), uniqueToken());
     await context.close();
 
-    const wrong = Buffer.from(`${credentials.username}:wrong-${credentials.password}`).toString(
-      "base64",
-    );
+    // 第4回は必ずBasic認証があるので、資格情報がないときは空の値で失敗させる
+    const basic = credentials ?? { username: "", password: "" };
+    const wrong = Buffer.from(`${basic.username}:wrong-${basic.password}`).toString("base64");
     const withWrongPassword = await request.get("/api/health", {
       headers: { authorization: `Basic ${wrong}` },
     });
